@@ -9,8 +9,8 @@ class NeuralNet(nn.Module):
         self.input_size = input_size
         self.sig = nn.Sigmoid()
         self.relu = nn.ReLU()
-        self.l1 = nn.Linear(input_size, output_size) 
-        self.l2 = nn.Linear(input_size, output_size)  
+        self.l1 = nn.Linear(input_size, 32) 
+        self.l2 = nn.Linear(32, 1)  
         self.l3 = nn.Linear(input_size, output_size)  
         self.l4 = nn.Linear(input_size, output_size)  
         self.l5 = nn.Linear(input_size, output_size)  
@@ -21,6 +21,8 @@ class NeuralNet(nn.Module):
         out = self.l1(x)
         out = self.sig(out)
         out = self.l2(out)
+        # out = self.relu(out)
+        # out = self.
         # out = self.l3(out)
         # out = self.relu(out)
         # out = self.l4(out)

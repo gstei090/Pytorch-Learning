@@ -24,6 +24,7 @@ optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
 
 # Training
 num_epochs = 100
+alpha = 0
 for epoch in range(num_epochs):
     # Forward pass and loss
     y_predicted = model(X)
@@ -36,11 +37,11 @@ for epoch in range(num_epochs):
 
     if (epoch+1) % 5 == 0:
         print(f'epoch: {epoch+1}, loss = {loss.item():.4f}')
-        # Plotting
-        predicted = model(X).detach().numpy()
+    # Plotting
+    predicted = model(X).detach().numpy()
 
-        plt.plot(X, Y, 'ro')
-        plt.plot(X, predicted, 'b')
-
+    plt.plot(X, Y, 'ro')
+    plt.plot(X, predicted, 'b', alpha=alpha)
+    alpha += 0.01
 #Show final graph
 plt.show()

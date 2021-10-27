@@ -35,7 +35,7 @@ class NeuralNet(nn.Module):
 
 #Data Generation
 def polynomial_func(x):
-    return x**3 - 10*x**2 + 4*x - 3
+   return x**3 - 10*x**2 + 4*x - 3
 
 input_data = np.random.randint(1,10,(100,1))
 output_data = np.array(input_data)
@@ -75,10 +75,13 @@ for epoch in range(num_epochs):
         print(f'epoch: {epoch+1}, loss = {loss.item():.4f}')
         # Plotting
         predicted = model(X).detach().numpy()
+        
+        plt.plot(X, predicted, 'bo', alpha=alpha)
+        alpha += 0.005
 
-        plt.plot(X, Y, 'ro')
-        plt.plot(X, predicted, 'b', alpha=alpha)
-        alpha += 0.1
+predicted = model(X).detach().numpy()
+plt.plot(X, Y, 'rs')
+plt.plot(X, predicted, 'b*')
 
 #Show final graph
 plt.show()

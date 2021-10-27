@@ -73,17 +73,19 @@ for epoch in range(num_epochs):
 
     if (epoch+1) % 1000 == 0:
         print(f'epoch: {epoch+1}, loss = {loss.item():.4f}')
-        # Plotting
+
+        # Plotting the predictions of the model during the learning process
         predicted = model(X).detach().numpy()
-        
         plt.plot(X, predicted, 'bo', alpha=alpha)
         alpha += 0.005
 
+#This is to show the final prediction made by the model (Blue stars)
+# and the initial output data to be compared to (Red squares)
 predicted = model(X).detach().numpy()
 plt.plot(X, Y, 'rs')
 plt.plot(X, predicted, 'b*')
 
-#Show final graph
+#Show the final graph
 plt.show()
 
 

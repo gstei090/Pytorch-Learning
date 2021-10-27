@@ -3,18 +3,19 @@ import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 class NeuralNet(nn.Module):
-    def __init__(self, input_size, output_size):
+    def __init__(self, input_size, output_size, hidden_layer_size):
         super(NeuralNet, self).__init__()
         self.input_size = input_size
         self.sig = nn.Sigmoid()
         self.relu = nn.ReLU()
-        self.l1 = nn.Linear(input_size, 32) 
-        self.l2 = nn.Linear(32, 32)  
-        self.l3 = nn.Linear(32, 1)  
-        self.l4 = nn.Linear(input_size, output_size)  
-        self.l5 = nn.Linear(input_size, output_size)  
-        self.l6 = nn.Linear(input_size, output_size)  
+        self.l1 = nn.Linear(input_size, hidden_layer_size) 
+        self.l2 = nn.Linear(hidden_layer_size, hidden_layer_size)  
+        self.l3 = nn.Linear(hidden_layer_size, hidden_layer_size)  
+        self.l4 = nn.Linear(hidden_layer_size, hidden_layer_size)  
+        self.l5 = nn.Linear(hidden_layer_size, hidden_layer_size)  
+        self.l6 = nn.Linear(hidden_layer_size, output_size)  
 
 
     def forward(self, x):
@@ -22,15 +23,14 @@ class NeuralNet(nn.Module):
         out = self.sig(out)
         out = self.l2(out)
         out = self.sig(out)
-        # out = self.
         out = self.l3(out)
-        # out = self.relu(out)
-        # out = self.l4(out)
-        # out = self.relu(out)
-        # out = self.l5(out)
-        # out = self.relu(out)
-        # out = self.l6(out)
-        # no activation and no softmax at the end
+        out = self.sig(out)
+        out = self.l4(out)
+        out = self.sig(out)
+        out = self.l5(out)
+        out = self.sig(out)
+        out = self.l6(out)
+
         return out
 
 #Data Generation
@@ -50,7 +50,8 @@ y = Y.view(Y.shape[0], 1)
 #Model Definition
 sample_size, input_size = X.shape
 output_size = 1
-model = NeuralNet(input_size, output_size)
+hidden_layer_size = 50
+model = NeuralNet(input_size, output_size, hidden_layer_size)
 
 # Loss and Optimizer Definition
 learning_rate = 0.001
@@ -70,14 +71,14 @@ for epoch in range(num_epochs):
     loss.backward()
     optimizer.step()
 
-    if (epoch+1) % 100 == 0:
+    if (epoch+1) % 1000 == 0:
         print(f'epoch: {epoch+1}, loss = {loss.item():.4f}')
         # Plotting
         predicted = model(X).detach().numpy()
 
         plt.plot(X, Y, 'ro')
         plt.plot(X, predicted, 'b', alpha=alpha)
-        alpha += 0.01
+        alpha += 0.1
 
 #Show final graph
 plt.show()

@@ -45,7 +45,7 @@ def random_float(low, high):
 num_data_points = 10000
 data = torch.from_numpy(np.linspace(0,10,num_data_points,dtype=np.float32))
 
-input_data = data.view(-1,1)
+input_data = data.view(-1,1).to(device)
 output_data = torch.empty(num_data_points,1).to(device)
 for i in range(len(output_data)):
     output_data[i][0]=polynomial_func(input_data[i][0])

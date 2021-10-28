@@ -34,18 +34,29 @@ class NeuralNet(nn.Module):
 
         return out
 
-#Data Generation
 def polynomial_func(x):
    return x**3 - 10*x**2 + 4*x - 3
 
-input_data = np.random.randint(1,10,(10000,1))
-output_data = np.array(input_data)
-for i in range(len(output_data)):
-    output_data[i][0]=polynomial_func(output_data[i][0])
+#Data Generation
+num_data_points = 10000
+raw_input = np.random.randint(1,10,(num_data_points,1))
+raw_output = np.array(raw_input)
+for i in range(len(raw_output)):
+    raw_output[i][0]=polynomial_func(raw_output[i][0])
+
+input_data = raw_input[:int(num_data_points*0.8)]
+input_test_data = raw_input[int(num_data_points*0.8):]
+
+output_data = raw_output[:int(num_data_points*0.8)]
+output_test_data = raw_output[int(num_data_points*0.8):]
+
 
 #Data Processing
 x_cpu = torch.from_numpy(input_data.astype(np.float32))
 X = x_cpu.to(device)
+x_test_cpu = torch.from_numpy(input_test_data.astype(np.float32))
+X_test = x_test_cpu.to(device)
+
 y_cpu = torch.from_numpy(output_data.astype(np.float32))
 Y = y_cpu.to(device)
 y = Y.view(Y.shape[0], 1)
@@ -82,6 +93,19 @@ for epoch in range(num_epochs):
         plt.plot(x_cpu, predicted, 'bo', alpha=alpha)
         alpha += 0.005
 
+#Testing the accuray of the model
+with torch.no_grad():
+    correct_predictions = 0
+    num_samples = 0
+    output = model(X_test).to(device)
+    for i in range(output.size()[0]):
+        output_difference = output_test_data[i][0] - output[i][0]
+        if abs(output_difference) < 1:
+            correct_predictions += 1
+        num_samples += 1
+    accuracy = 100 * (correct_predictions/num_samples)
+    print(f"accuracy of model = {correct_predictions}/{num_samples} = {accuracy}%")
+
 #This is to show the final prediction made by the model (Blue stars)
 # and the initial output data to be compared to (Red squares)
 predicted = model(X).detach().cpu().numpy()
@@ -92,8 +116,8 @@ plt.plot(x_cpu, predicted, 'b*')
 plt.show()
 
 # TODO
-# 1. met plus de points et fait un split training and testing. genre 80%-20%. 
+# 1. met plus de points et fait un split training and testing. genre 80%-20%.  
 # 2. ajoute du bruit poluynomial aux inputs et outputs
-# 3. Essaie ADAM au lieu SGD
+# 3. Essaie ADAM au lieu SGD 
 # 4. rapporte tes resultats sur le test.
-# 5. Use CUDA as the device
+# 5. Use CUDA as the device [x]

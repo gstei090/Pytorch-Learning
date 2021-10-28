@@ -2,6 +2,7 @@ import torch
 import torch.nn as nn
 import numpy as np
 import matplotlib.pyplot as plt
+import random
 
 # Device configuration
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -35,37 +36,36 @@ class NeuralNet(nn.Module):
         return out
 
 def polynomial_func(x):
-   return x**3 - 10*x**2 + 4*x - 3
+   return x**3 - 10*x**2 + 4*x - 0.5
+
+def random_float(low, high):
+    return random.random()*(high-low) + low
 
 #Data Generation
-num_data_points = 20000
-raw_input = np.random.randint(1,10,(num_data_points,1))
-raw_output = np.array(raw_input)
-for i in range(len(raw_output)):
-    raw_output[i][0]=polynomial_func(raw_output[i][0])
+num_data_points = 10
+
+input_data = torch.rand(num_data_points,1).to(device)
+output_data = torch.empty(num_data_points,1).to(device)
+input_data.mul_(10)
+for i in range(len(output_data)):
+    output_data[i][0]=polynomial_func(input_data[i][0])
 
     #Generate some noise in the outputs
     noise = np.random.randint(0,5)
     if noise == 0:
-        raw_output[i][0] += np.random.randint(1,10)
+        output_data[i][0] += np.random.randint(0,10)
+        #output_data[i][0] += random_float(0,10)
 
-input_data = raw_input[:int(num_data_points*0.8)]
-input_test_data = raw_input[int(num_data_points*0.8):]
-
-output_data = raw_output[:int(num_data_points*0.8)]
-output_test_data = raw_output[int(num_data_points*0.8):]
-
+print(input_data)
+print(output_data)
 #Data Processing
-#Generating the tensors for the input data and input test data (X and X_test)
-x_cpu = torch.from_numpy(input_data.astype(np.float32))
-X = x_cpu.to(device)
-x_test_cpu = torch.from_numpy(input_test_data.astype(np.float32))
-X_test = x_test_cpu.to(device)
+X = input_data[:int(num_data_points*0.8)].to(device)
+X_test = input_data[int(num_data_points*0.8):].to(device)
 
-#Generating the output data
-y_cpu = torch.from_numpy(output_data.astype(np.float32))
-Y = y_cpu.to(device)
-y = Y.view(Y.shape[0], 1)
+Y = output_data[:int(num_data_points*0.8)].to(device)
+Y_test = output_data[int(num_data_points*0.8):].to(device)
+y = Y.view(Y.shape[0], 1).to(device)
+y_test = Y_test.view(Y_test.shape[0], 1).to(device)
 
 #Model Definition
 sample_size, input_size = X.shape
@@ -74,7 +74,7 @@ hidden_layer_size = 50
 model = NeuralNet(input_size, output_size, hidden_layer_size)
 
 # Loss and Optimizer Definition
-learning_rate = 0.001
+learning_rate = 0.1
 criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)  
 
@@ -95,28 +95,32 @@ for epoch in range(num_epochs):
         print(f'epoch: {epoch+1}, loss = {loss.item():.4f}')
 
         # Plotting the predictions of the model during the learning process
-        predicted = model(X).detach().cpu().numpy()
-        plt.plot(x_cpu, predicted, 'bo', alpha=alpha)
-        alpha += 0.005
+        predicted = model(X).detach().cpu()
+        a = X.view(-1).detach().cpu().numpy()
+        b = predicted.view(-1).numpy()
+        coefficients = np.polyfit(a, b, 3)
+        poly = np.poly1d(coefficients)
+        new_x = np.linspace(0, 10)
+        new_y = poly(new_x)
+        plt.plot(new_x, new_y, 'b', alpha=alpha)
+        alpha += 0.1
 
 #Testing the accuray of the model
 with torch.no_grad():
-    correct_predictions = 0
-    num_samples = 0
-    output = model(X_test).to(device)
-    for i in range(output.size()[0]):
-        output_difference = output_test_data[i][0] - output[i][0]
-        if abs(output_difference) < 1:
-            correct_predictions += 1
-        num_samples += 1
-    accuracy = 100 * (correct_predictions/num_samples)
-    print(f"accuracy of model = {correct_predictions}/{num_samples} = {accuracy}%")
+    y_test_predicted = model(X_test).to(device)
+    loss = criterion(y_test_predicted, y_test)
+    print(f"Mean Squared Loss of the model using test data = {loss}")
 
 #This is to show the final prediction made by the model (Blue stars)
 # and the initial output data to be compared to (Red squares)
 predicted = model(X).detach().cpu().numpy()
-plt.plot(x_cpu, y_cpu, 'rs')
-plt.plot(x_cpu, predicted, 'b*')
+a = X.view(-1).detach().cpu().numpy()
+b = Y.view(-1).detach().cpu().numpy()
+coefficients = np.polyfit(a, b, 3)
+poly = np.poly1d(coefficients)
+new_x = np.linspace(0, 10)
+new_y = poly(new_x)
+plt.plot(new_x, new_y, 'r')
 
 #Show the final graph
 plt.show()

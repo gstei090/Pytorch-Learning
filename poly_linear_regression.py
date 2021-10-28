@@ -38,11 +38,16 @@ def polynomial_func(x):
    return x**3 - 10*x**2 + 4*x - 3
 
 #Data Generation
-num_data_points = 10000
+num_data_points = 20000
 raw_input = np.random.randint(1,10,(num_data_points,1))
 raw_output = np.array(raw_input)
 for i in range(len(raw_output)):
     raw_output[i][0]=polynomial_func(raw_output[i][0])
+
+    #Generate some noise in the outputs
+    noise = np.random.randint(0,5)
+    if noise == 0:
+        raw_output[i][0] += np.random.randint(1,10)
 
 input_data = raw_input[:int(num_data_points*0.8)]
 input_test_data = raw_input[int(num_data_points*0.8):]
@@ -50,13 +55,14 @@ input_test_data = raw_input[int(num_data_points*0.8):]
 output_data = raw_output[:int(num_data_points*0.8)]
 output_test_data = raw_output[int(num_data_points*0.8):]
 
-
 #Data Processing
+#Generating the tensors for the input data and input test data (X and X_test)
 x_cpu = torch.from_numpy(input_data.astype(np.float32))
 X = x_cpu.to(device)
 x_test_cpu = torch.from_numpy(input_test_data.astype(np.float32))
 X_test = x_test_cpu.to(device)
 
+#Generating the output data
 y_cpu = torch.from_numpy(output_data.astype(np.float32))
 Y = y_cpu.to(device)
 y = Y.view(Y.shape[0], 1)
@@ -114,10 +120,3 @@ plt.plot(x_cpu, predicted, 'b*')
 
 #Show the final graph
 plt.show()
-
-# TODO
-# 1. met plus de points et fait un split training and testing. genre 80%-20%.  
-# 2. ajoute du bruit poluynomial aux inputs et outputs
-# 3. Essaie ADAM au lieu SGD 
-# 4. rapporte tes resultats sur le test.
-# 5. Use CUDA as the device [x]

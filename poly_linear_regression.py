@@ -42,22 +42,18 @@ def random_float(low, high):
     return random.random()*(high-low) + low
 
 #Data Generation
-num_data_points = 10
+num_data_points = 20000
 
 input_data = torch.rand(num_data_points,1).to(device)
 output_data = torch.empty(num_data_points,1).to(device)
-input_data.mul_(10)
 for i in range(len(output_data)):
     output_data[i][0]=polynomial_func(input_data[i][0])
 
     #Generate some noise in the outputs
     noise = np.random.randint(0,5)
     if noise == 0:
-        output_data[i][0] += np.random.randint(0,10)
-        #output_data[i][0] += random_float(0,10)
+        output_data[i][0] += random_float(0,1)
 
-print(input_data)
-print(output_data)
 #Data Processing
 X = input_data[:int(num_data_points*0.8)].to(device)
 X_test = input_data[int(num_data_points*0.8):].to(device)

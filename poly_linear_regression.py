@@ -38,7 +38,7 @@ class NeuralNet(nn.Module):
 def polynomial_func(x):
    return x**3 - 10*x**2 + 4*x - 3
 
-input_data = np.random.randint(1,10,(100,1))
+input_data = np.random.randint(1,10,(10000,1))
 output_data = np.array(input_data)
 for i in range(len(output_data)):
     output_data[i][0]=polynomial_func(output_data[i][0])

@@ -36,15 +36,16 @@ class NeuralNet(nn.Module):
         return out
 
 def polynomial_func(x):
-   return x**3 - 10*x**2 + 4*x - 0.5
+   return x**3 - 10*x**2 + 4*x - 3
 
 def random_float(low, high):
     return random.random()*(high-low) + low
 
 #Data Generation
-num_data_points = 20000
+num_data_points = 10000
+data = torch.from_numpy(np.linspace(0,10,num_data_points,dtype=np.float32))
 
-input_data = torch.rand(num_data_points,1).to(device)
+input_data = data.view(-1,1)
 output_data = torch.empty(num_data_points,1).to(device)
 for i in range(len(output_data)):
     output_data[i][0]=polynomial_func(input_data[i][0])
@@ -52,7 +53,7 @@ for i in range(len(output_data)):
     #Generate some noise in the outputs
     noise = np.random.randint(0,5)
     if noise == 0:
-        output_data[i][0] += random_float(0,1)
+        output_data[i][0] += random_float(0,5)
 
 #Data Processing
 X = input_data[:int(num_data_points*0.8)].to(device)

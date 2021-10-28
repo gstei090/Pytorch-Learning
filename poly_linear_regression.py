@@ -45,8 +45,8 @@ def random_float(low, high):
 num_data_points = 10000
 data = torch.from_numpy(np.linspace(0,10,num_data_points,dtype=np.float32))
 
-input_data = data.view(-1,1).to(device)
-output_data = torch.empty(num_data_points,1).to(device)
+input_data = data.view(-1,1)
+output_data = torch.empty(num_data_points,1)
 for i in range(len(output_data)):
     output_data[i][0]=polynomial_func(input_data[i][0])
 
@@ -56,13 +56,14 @@ for i in range(len(output_data)):
         output_data[i][0] += random_float(0,5)
 
 #Data Processing
-X = input_data[:int(num_data_points*0.8)].to(device)
-X_test = input_data[int(num_data_points*0.8):].to(device)
+#int(num_data_points*0.8)
+X = input_data.to(device)
+#X_test = input_data[:].to(device)
 
-Y = output_data[:int(num_data_points*0.8)].to(device)
-Y_test = output_data[int(num_data_points*0.8):].to(device)
+Y = output_data.to(device)
+#Y_test = output_data[:].to(device)
 y = Y.view(Y.shape[0], 1).to(device)
-y_test = Y_test.view(Y_test.shape[0], 1).to(device)
+#y_test = Y_test.view(Y_test.shape[0], 1).to(device)
 
 #Model Definition
 sample_size, input_size = X.shape
@@ -76,7 +77,7 @@ criterion = nn.MSELoss()
 optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)  
 
 # Training
-num_epochs = 10000
+num_epochs = 100000
 alpha = 0
 for epoch in range(num_epochs):
     # Forward pass and loss
@@ -100,13 +101,13 @@ for epoch in range(num_epochs):
         new_x = np.linspace(0, 10)
         new_y = poly(new_x)
         plt.plot(new_x, new_y, 'b', alpha=alpha)
-        alpha += 0.1
+        alpha += 0.01
 
 #Testing the accuray of the model
-with torch.no_grad():
-    y_test_predicted = model(X_test).to(device)
-    loss = criterion(y_test_predicted, y_test)
-    print(f"Mean Squared Loss of the model using test data = {loss}")
+# with torch.no_grad():
+#     y_test_predicted = model(X_test).to(device)
+#     loss = criterion(y_test_predicted, y_test)
+#     print(f"Mean Squared Loss of the model using test data = {loss}")
 
 #This is to show the final prediction made by the model (Blue stars)
 # and the initial output data to be compared to (Red squares)
